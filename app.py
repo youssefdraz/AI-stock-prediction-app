@@ -10,7 +10,7 @@ import time
 # --- CONFIGURATION ---
 st.set_page_config(page_title="AI Stock Prediction-500 Stocks", page_icon="📈", layout="wide")
 
-RESULTS_PATH = 'results_500/all_results.csv'
+RESULTS_PATH = 'all_results.csv'  # Changed from results_500/all_results.csv
 TRAINING_SCRIPT = 'Training_All_445_PROVEN.py'
 
 # --- DATA LOADING ---
@@ -75,7 +75,6 @@ if menu == "🏠 Dashboard":
     col1, col2 = st.columns(2)
     
     with col1:
-        # R² Distribution chart (keep existing code)
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.hist(successful_df['r2'], bins=30, color='#3498db', edgecolor='black', alpha=0.7)
         ax.axvline(0, color='red', linestyle='--', linewidth=2, label='Zero')
@@ -84,7 +83,6 @@ if menu == "🏠 Dashboard":
         st.pyplot(fig)
         
     with col2:
-        # Top 10 chart (keep existing code)
         top10 = successful_df.nlargest(10, 'r2')
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.barh(top10['ticker'], top10['r2'], color='#27ae60')
@@ -93,10 +91,7 @@ if menu == "🏠 Dashboard":
     
     st.markdown("---")
     
-    # ========================================
-    # ADD FULL TABLE HERE
-    # ========================================
-    
+    # FULL TABLE - ALL COMPANIES
     st.subheader(f"📋 All {len(successful_df)} Companies - Complete Results")
     
     # Search bar
@@ -140,56 +135,6 @@ if menu == "🏠 Dashboard":
 
 
 elif menu == "📊 Results Explorer":
-    # ... (rest of your code)
-    
-    # Refresh button
-    if st.button("🔄 Refresh Data"):
-        st.cache_data.clear()
-        st.rerun()
-
-    # Metrics Row 1
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Stocks", len(df), "Analyzed")
-    if not positive_df.empty:
-        success_rate = f"{(len(positive_df)/len(df))*100:.1f}%"
-        col2.metric("Successful Models", len(positive_df), f"{success_rate} Success Rate")
-        col3.metric("Average R²", f"{positive_df['r2'].mean():.3f}", "Positive stocks only")
-    
-    st.markdown("---")
-
-    # Quick Charts
-    st.subheader("Performance Snapshot")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig, ax = plt.subplots(figsize=(8, 4))
-        ax.hist(successful_df['r2'], bins=20, color='#3498db', edgecolor='black')
-        ax.axvline(0, color='red', linestyle='--')
-        ax.set_title("Distribution of R² Scores")
-        st.pyplot(fig)
-        
-    with col2:
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
-        # Color by performance
-        colors = successful_df['r2'].apply(
-            lambda x: '#27ae60' if x > 0.7 else '#f39c12' if x > 0.5 
-            else '#3498db' if x > 0 else '#e74c3c'
-        )
-        
-        ax.scatter(successful_df['r2'], range(len(successful_df)), 
-                   c=colors, alpha=0.6, s=50)
-        ax.axvline(0, color='red', linestyle='--', linewidth=2)
-        ax.axvline(0.5, color='orange', linestyle='--', linewidth=1, alpha=0.5)
-        ax.axvline(0.7, color='green', linestyle='--', linewidth=1, alpha=0.5)
-        ax.set_xlabel('R² Score')
-        ax.set_ylabel('Stock Index')
-        ax.set_title(f'All {len(successful_df)} Stocks - R² Distribution')
-        ax.grid(alpha=0.3)
-        st.pyplot(fig)
-
-
-elif menu == "📊 Results Explorer":
     st.title("Results Explorer")
     
     filter_val = st.radio("Filter Results:", ["All Stocks", "Positive R² Only", "R² > 0.5", "R² > 0.7"], horizontal=True)
@@ -204,7 +149,6 @@ elif menu == "📊 Results Explorer":
         
     display_df = display_df.sort_values('r2', ascending=False).reset_index(drop=True)
     
-    # Format the dataframe for display
     st.dataframe(
         display_df.style.format({
             'mae': '${:.2f}',
@@ -250,7 +194,7 @@ elif menu == "📈 Live Charts":
 elif menu == "🎯 Stock Analysis":
     st.title("Individual Stock Analysis")
     
-    ticker = st.selectbox("Select a stock to analyze:", df['ticker'].unique())
+    ticker = st.selectbox("Select a stock to analyze:", sorted(df['ticker'].unique()))
     stock_data = df[df['ticker'] == ticker].iloc[0]
     
     st.markdown(f"## {ticker} Analysis")
@@ -285,25 +229,26 @@ elif menu == "🎯 Stock Analysis":
     with col_right:
         st.subheader("📊 1-Year Price History")
         with st.spinner("Fetching market data..."):
-            hist = yf.Ticker(ticker).history(period="1y")
-            if not hist.empty:
-                # Streamlit's native beautiful line chart
-                st.line_chart(hist['Close'])
-            else:
-                st.error("Could not fetch price history from Yahoo Finance.")
+            try:
+                hist = yf.Ticker(ticker).history(period="1y")
+                if not hist.empty:
+                    st.line_chart(hist['Close'])
+                else:
+                    st.error("Could not fetch price history from Yahoo Finance.")
+            except:
+                st.error("Error fetching data.")
 
 
 elif menu == "⚙️ Training":
     st.title("Model Training")
     st.info("🎓 **Architecture:** 4 CNN Layers + 2 Dense Layers | **Features:** 19 indicators | **Timesteps:** 60")
     
-    st.warning("⚠️ **Note on Web Deployment:** Running heavy ML training scripts via a web button can cause timeouts if deployed to the cloud. Best used locally.")
+    st.warning("⚠️ **Note:** Running heavy ML training scripts via a web button can cause timeouts if deployed to the cloud. Best used locally.")
     
     if st.button("▶ Start Training Pipeline"):
         with st.spinner("Training in progress... Check your terminal for logs."):
             try:
                 if os.path.exists(TRAINING_SCRIPT):
-                    # Runs the script and waits for it to finish
                     subprocess.run(["python", TRAINING_SCRIPT], check=True)
                     st.success("Training completed successfully!")
                 else:
@@ -320,5 +265,11 @@ elif menu == "ℹ️ About":
     **Supervisor:** Dr. Ahmed Salaheldin  
     **Institution:** University of Hertfordshire (2026)
     
-    This system uses Convolutional Neural Networks (CNN) to predict stock prices across S&P 500 stocks using 19 technical indicators.
+    This system uses Convolutional Neural Networks (CNN) to predict stock prices across 500+ stocks using 19 technical indicators.
+    
+    #### Key Features:
+    - 332 stocks analyzed after filtering
+    - CNN-Deep architecture with 4 convolutional layers
+    - 164 stocks showing positive predictability (49.4%)
+    - Average R² of 0.558 for predictable stocks
     """)
