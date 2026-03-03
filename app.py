@@ -8,10 +8,10 @@ import subprocess
 import time
 
 # --- CONFIGURATION ---
-st.set_page_config(page_title="AI Stock Prediction", page_icon="📈", layout="wide")
+st.set_page_config(page_title="AI Stock Prediction-500 Stocks", page_icon="📈", layout="wide")
 
-RESULTS_PATH = 'all_results.csv'
-TRAINING_SCRIPT = 'FINAL_Training.py'
+RESULTS_PATH = 'results_500/all_results.csv'
+TRAINING_SCRIPT = 'Training_All_445_PROVEN.py'
 
 # --- DATA LOADING ---
 @st.cache_data
@@ -33,12 +33,14 @@ def load_data():
         })
 
 df = load_data()
+df = df[df['r2'] > -5]  # Remove models worse than simple baseline
 successful_df = df[df['status'] == 'success']
 positive_df = successful_df[successful_df['r2'] > 0]
 
 # --- SIDEBAR NAVIGATION ---
 st.sidebar.title("📈 Stock Prediction")
 st.sidebar.markdown("AI-Based Stock Market Prediction System")
+st.sidebar.markdown(f"**📊 Analyzing {len(df)} Stocks**")
 
 menu = st.sidebar.radio(
     "Navigation",
