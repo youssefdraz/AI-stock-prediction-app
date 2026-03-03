@@ -53,7 +53,94 @@ st.sidebar.caption("Youssef Derraz\n\nUniversity of Hertfordshire | 2026")
 # --- VIEWS ---
 
 if menu == "🏠 Dashboard":
-    st.title("Dashboard Overview")
+    st.title("Dashboard Overview - 500 Stock System")
+    
+    # Refresh button
+    if st.button("🔄 Refresh Data"):
+        st.cache_data.clear()
+        st.rerun()
+
+    # Metrics Row
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Stocks", len(df), "Analyzed")
+    if not positive_df.empty:
+        success_rate = f"{(len(positive_df)/len(df))*100:.1f}%"
+        col2.metric("Successful Models", len(positive_df), f"{success_rate} Success Rate")
+        col3.metric("Average R²", f"{positive_df['r2'].mean():.3f}", "Positive stocks only")
+    
+    st.markdown("---")
+
+    # Quick Charts
+    st.subheader("Performance Snapshot")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # R² Distribution chart (keep existing code)
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.hist(successful_df['r2'], bins=30, color='#3498db', edgecolor='black', alpha=0.7)
+        ax.axvline(0, color='red', linestyle='--', linewidth=2, label='Zero')
+        ax.set_xlabel('R² Score')
+        ax.set_title("Distribution of R² Scores")
+        st.pyplot(fig)
+        
+    with col2:
+        # Top 10 chart (keep existing code)
+        top10 = successful_df.nlargest(10, 'r2')
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.barh(top10['ticker'], top10['r2'], color='#27ae60')
+        ax.set_title("Top 10 Performers")
+        st.pyplot(fig)
+    
+    st.markdown("---")
+    
+    # ========================================
+    # ADD FULL TABLE HERE
+    # ========================================
+    
+    st.subheader(f"📋 All {len(successful_df)} Companies - Complete Results")
+    
+    # Search bar
+    search = st.text_input("🔍 Search by ticker:", "")
+    
+    # Prepare data
+    display_df = successful_df.copy()
+    
+    # Apply search
+    if search:
+        display_df = display_df[display_df['ticker'].str.contains(search.upper(), na=False)]
+    
+    # Sort by R² (high to low)
+    display_df = display_df.sort_values('r2', ascending=False).reset_index(drop=True)
+    display_df.insert(0, 'Rank', range(1, len(display_df) + 1))
+    
+    st.write(f"**Showing {len(display_df)} of {len(successful_df)} stocks**")
+    
+    # Display table with color coding
+    st.dataframe(
+        display_df[['Rank', 'ticker', 'mae', 'rmse', 'r2', 'dpa']].style
+        .format({
+            'mae': '${:.2f}',
+            'rmse': '${:.2f}',
+            'r2': '{:.4f}',
+            'dpa': '{:.2f}%'
+        })
+        .background_gradient(subset=['r2'], cmap='RdYlGn', vmin=-5, vmax=1),
+        use_container_width=True,
+        height=600
+    )
+    
+    # Download button
+    csv = display_df[['Rank', 'ticker', 'mae', 'rmse', 'r2', 'dpa']].to_csv(index=False)
+    st.download_button(
+        label="💾 Download All Results (CSV)",
+        data=csv,
+        file_name=f"all_{len(display_df)}_stocks_results.csv",
+        mime="text/csv"
+    )
+
+
+elif menu == "📊 Results Explorer":
+    # ... (rest of your code)
     
     # Refresh button
     if st.button("🔄 Refresh Data"):
