@@ -82,10 +82,23 @@ if menu == "🏠 Dashboard":
         st.pyplot(fig)
         
     with col2:
-        top10 = successful_df.nlargest(10, 'r2')
-        fig, ax = plt.subplots(figsize=(8, 4))
-        ax.barh(top10['ticker'], top10['r2'], color='#27ae60')
-        ax.set_title("Top 10 Performers")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        # Color by performance
+        colors = successful_df['r2'].apply(
+            lambda x: '#27ae60' if x > 0.7 else '#f39c12' if x > 0.5 
+            else '#3498db' if x > 0 else '#e74c3c'
+        )
+        
+        ax.scatter(successful_df['r2'], range(len(successful_df)), 
+                   c=colors, alpha=0.6, s=50)
+        ax.axvline(0, color='red', linestyle='--', linewidth=2)
+        ax.axvline(0.5, color='orange', linestyle='--', linewidth=1, alpha=0.5)
+        ax.axvline(0.7, color='green', linestyle='--', linewidth=1, alpha=0.5)
+        ax.set_xlabel('R² Score')
+        ax.set_ylabel('Stock Index')
+        ax.set_title(f'All {len(successful_df)} Stocks - R² Distribution')
+        ax.grid(alpha=0.3)
         st.pyplot(fig)
 
 
