@@ -10,6 +10,45 @@ import time
 # --- CONFIGURATION ---
 st.set_page_config(page_title="AI Stock Prediction-500 Stocks", page_icon="📈", layout="wide")
 
+
+def apply_theme(light_mode: bool):
+    if light_mode:
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-color: #f8fafc;
+                color: #0f172a;
+            }
+            [data-testid="stSidebar"] {
+                background-color: #ffffff;
+                color: #0f172a;
+                border-right: 1px solid #e2e8f0;
+            }
+            .stMetric {
+                background-color: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 10px;
+                padding: 10px;
+            }
+            .stButton > button,
+            .stDownloadButton > button {
+                background-color: #ffffff;
+                color: #0f172a;
+                border: 1px solid #cbd5e1;
+            }
+            .stTextInput input,
+            .stSelectbox div[data-baseweb="select"] > div,
+            .stMultiSelect div[data-baseweb="select"] > div {
+                background-color: #ffffff;
+                color: #0f172a;
+                border: 1px solid #cbd5e1;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
 RESULTS_PATH = 'all_results.csv'  # Changed from results_500/all_results.csv
 TRAINING_SCRIPT = 'Training_All_445_PROVEN.py'
 
@@ -41,6 +80,13 @@ positive_df = successful_df[successful_df['r2'] > 0]
 st.sidebar.title("📈 Stock Prediction")
 st.sidebar.markdown("AI-Based Stock Market Prediction System")
 st.sidebar.markdown(f"**📊 Analyzing {len(df)} Stocks**")
+if 'light_mode' not in st.session_state:
+    st.session_state.light_mode = False
+
+light_mode = st.sidebar.toggle("☀️ Light mode", value=st.session_state.light_mode)
+st.session_state.light_mode = light_mode
+
+apply_theme(light_mode)
 
 menu = st.sidebar.radio(
     "Navigation",
