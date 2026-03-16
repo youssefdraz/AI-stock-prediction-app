@@ -14,11 +14,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Paths — update these to match your machine
-CNN_RESULTS_PATH      = r'E:\Grad Project\results_500_returns\all_results.csv'
-CNNLSTM_RESULTS_PATH  = r'E:\Grad Project\results_500_cnnlstm\all_results.csv'
-CNN_TRAINING_SCRIPT   = r'E:\Grad Project\Training_All_445.py'
-CNNLSTM_TRAINING_SCRIPT = r'E:\Grad Project\Training_CNNLSTM_445.py'
+# Paths — CSV files must be in the root of your GitHub repo
+CNN_RESULTS_PATH      = 'cnn_results.csv'
+CNNLSTM_RESULTS_PATH  = 'cnnlstm_results.csv'
+CNN_TRAINING_SCRIPT   = 'Training_All_445.py'
+CNNLSTM_TRAINING_SCRIPT = 'Training_CNNLSTM_445.py'
 
 # Benchmark comparison data (from your actual results)
 BENCHMARK_DATA = {
