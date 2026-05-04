@@ -508,7 +508,7 @@ elif menu == "🔬 Benchmark":
             'Edge Score': '{:.3f}',
             'Avg MAE (%)': '{:.3f}%',
         })
-        .applymap(colour_edge, subset=['Edge Score']),
+        .map(colour_edge, subset=['Edge Score']),
         use_container_width=True
     )
 
