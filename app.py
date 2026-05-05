@@ -104,7 +104,8 @@ if menu == "🏠 Dashboard":
             col1, col2 = st.columns(2)
             with col1:
                 fig, ax = plt.subplots(figsize=(8, 4))
-                ax.hist(s['r2'], bins=30, color='#7B4FBE', edgecolor='white', alpha=0.9)
+                s_plot = s[s['r2'] > -6]  # clip extreme outliers for display only
+                ax.hist(s_plot['r2'], bins=30, color='#7B4FBE', edgecolor='white', alpha=0.9)
                 ax.axvline(0, color='red', linestyle='--', linewidth=2, label='Zero')
                 ax.set_xlabel('R² Score')
                 ax.set_ylabel('Count')
@@ -250,7 +251,8 @@ elif menu == "📈 Charts":
             pos = s[s['r2'] > 0]
             fig, axes = plt.subplots(2, 2, figsize=(14, 9))
 
-            axes[0,0].hist(s['r2'], bins=30, color='#7B4FBE', edgecolor='white')
+            s_plot = s[s['r2'] > -6]  # clip extreme outliers for display only
+            axes[0,0].hist(s_plot['r2'], bins=30, color='#7B4FBE', edgecolor='white')
             axes[0,0].axvline(0, color='red', linestyle='--')
             axes[0,0].set_title('R² Distribution')
             axes[0,0].set_xlabel('R²')
